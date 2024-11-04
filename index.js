@@ -6,10 +6,11 @@ const app = express()
 const router = require('./service/api/apiRouter')
 const fs = require("fs");
 const swaggerUi = require('swagger-ui-express')
-const YAML = require('yaml')
+const yaml = require('yaml')
+const logger = require('./technical services/utils/logger')
 
 const swaggerFile = fs.readFileSync('./assets/api-documentation.yaml', 'utf8')
-const swaggerDocument = YAML.parse(swaggerFile)
+const swaggerDocument = yaml.parse(swaggerFile)
 
 const server = http.createServer(app)
 
@@ -31,5 +32,5 @@ app.get('*', function (req, res) {
 })
 
 server.listen(process.env.PORT, () => {
-    console.log(`book management backend started new and is listening to port ${process.env.PORT}`)
+    logger.log('warn',`book management backend started new and is listening to port ${process.env.PORT}`)
 })
