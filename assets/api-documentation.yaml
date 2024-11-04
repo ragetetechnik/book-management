@@ -24,11 +24,16 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/book'
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    title:
+                      type: string
+                      example: Book
         '500':
-          description: internal server error
-        '401':
-          description: unauthorised
+          description: server error
     post:
       tags:
         - Books
@@ -40,14 +45,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/book'
+              $ref: '#/components/schemas/Book'
       responses:
         '201':
           description: ok (created)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/book'
+                allOf:
+                  - $ref: '#/components/schemas/Book'
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
         '500':
           description: server error
         '422':
@@ -72,11 +83,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/book'
+                allOf:
+                  - $ref: '#/components/schemas/Book'
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
         '500':
           description: server error
-        '401':
-          description: unauthorised
         '404':
           description: not found
     put:
@@ -96,7 +111,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/book'
+              $ref: '#/components/schemas/Book'
       responses:
         '200':
           description: ok (updated)
@@ -125,8 +140,6 @@ paths:
           description: ok (deleted)
         '500':
           description: server error
-        '403':
-          description: forbidden
         '401':
           description: unauthorised
         '404':
@@ -141,12 +154,9 @@ components:
       description: >-
         Enter the token with the `Bearer ` prefix, e.g. "Bearer aabbccde1112345".
   schemas:
-    book:
+    Book:
       type: object
       properties:
-        id:
-          type: integer
-          example: 1
         title:
           type: string
           example: Book

@@ -13,6 +13,7 @@
   },
   "author": "simon dietrich",
   "dependencies": {
+    "ajv": "^8.17.1",
     "body-parser": "^1.20.3",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
