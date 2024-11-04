@@ -1,0 +1,174 @@
+openapi: 3.0.0
+info:
+  title: Book Management API
+  version: 0.0.1
+  description: REST API for Book Management
+servers:
+  - url: http://localhost:3000/api
+tags:
+  - name: Books
+  - name: Authors
+  - name: Publishers
+  - name: Categories
+paths:
+  /books:
+    get:
+      tags:
+        - Books
+      summary: Retrieve all books
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/book'
+        '500':
+          description: internal server error
+        '401':
+          description: unauthorised
+    post:
+      tags:
+        - Books
+      summary: Create a new book
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/book'
+      responses:
+        '201':
+          description: ok (created)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/book'
+        '500':
+          description: server error
+        '422':
+          description: unprocessable content
+        '401':
+          description: unauthorised
+
+  /books/{id}:
+    get:
+      tags:
+        - Books
+      summary: Retrieve a specific book by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/book'
+        '500':
+          description: server error
+        '401':
+          description: unauthorised
+        '404':
+          description: not found
+    put:
+      tags:
+        - Books
+      summary: Update an existing book
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/book'
+      responses:
+        '200':
+          description: ok (updated)
+        '422':
+          description: unprocessable content
+        '500':
+          description: server error
+        '401':
+          description: unauthorised
+        '404':
+          description: not found
+    delete:
+      tags:
+        - Books
+      summary: Delete a book
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ok (deleted)
+        '500':
+          description: server error
+        '403':
+          description: forbidden
+        '401':
+          description: unauthorised
+        '404':
+          description: not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: >-
+        Enter the token with the `Bearer ` prefix, e.g. "Bearer aabbccde1112345".
+  schemas:
+    book:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Book
+        isbn:
+          type: string
+          example: 978-0-12-123456-7
+        condition:
+          type: string
+          example: very good
+        publication_year:
+          type: integer
+          example: 2021
+        publisher_id:
+          type: integer
+          example: 1
+        category_id:
+          type: integer
+          example: 1
+      required:
+        - title
+        - isbn
+        - condition
+        - publication_year
+        - publisher_id
+        - category_id

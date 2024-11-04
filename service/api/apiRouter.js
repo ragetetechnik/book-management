@@ -11,6 +11,6 @@ router.use(function timeLog (req, res, next) {
 router.use(bodyParser.urlencoded({ extended: false }))
 router.use(bodyParser.json())
 
-router.use('/book', info)
+router.use('/books', info)
 
 module.exports = router

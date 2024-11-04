@@ -2,9 +2,9 @@ const database = require('./database')
 
 const getBooks = function () {
     return new Promise(function (resolve, reject) {
-        database('book')
+        database('books')
             .select({
-                title: 'book.title'
+                title: 'books.title'
             })
             .then(function (data) {
                 resolve(data)
