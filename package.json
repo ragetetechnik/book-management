@@ -5,12 +5,19 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "start-dev": "nodemon index.js"
+    "start-dev": "nodemon index.js",
+    "knex:make": "knex migrate:make initial",
+    "knex:migrate": "knex migrate:latest",
+    "knex:rollback": "knex migrate:rollback",
+    "knex:seed": "knex seed:run"
   },
   "author": "simon dietrich",
   "dependencies": {
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "dotenv": "^16.4.5"
+    "knex": "^3.1.0",
+    "mysql": "^2.18.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
