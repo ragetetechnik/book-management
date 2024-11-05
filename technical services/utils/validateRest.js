@@ -1,14 +1,11 @@
 const Ajv = require('ajv')
 const ajv = new Ajv()
 
-const isMailValid = function (mail) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(mail)
-}
-
-const isNameValid = function (name) {
-    return (typeof name === 'string' && name.length <= 64)
-}
+const isISBNValid = function (isbn) {
+    // Regular expression for ISBN-13 with hyphens
+    const isbnRegex = /^97[89]-\d-\d{2}-\d{6}-\d$/;
+    return isbnRegex.test(isbn);
+};
 
 const isBookCreateValid = function (bookObject) {
     return validateBookCreate(bookObject)
@@ -31,9 +28,14 @@ const validateBookCreate = (jsonObject) => {
                 condition: { type: 'string' },
                 publication_year: { type: 'integer' },
                 publisher_id: { type: 'integer' },
-                category_id: { type: 'integer' }
+                category_id: { type: 'integer' },
+                authors: {
+                    type: 'array',
+                    items: { type: 'integer' },
+                    minItems: 1
+                }
             },
-        required: ['title', 'isbn', 'condition', 'publication_year', 'publisher_id', 'category_id']
+        required: ['title', 'isbn', 'condition', 'publication_year', 'publisher_id', 'category_id', 'authors']
     }
 
     const validate = ajv.compile(schema)
@@ -54,7 +56,12 @@ const validateBookUpdate = (jsonObject) => {
             condition: { type: 'string' },
             publication_year: { type: 'integer' },
             publisher_id: { type: 'integer' },
-            category_id: { type: 'integer' }
+            category_id: { type: 'integer' },
+            authors: {
+                type: 'array',
+                items: { type: 'integer' },
+                minItems: 1
+            }
         }
     }
 
@@ -74,9 +81,8 @@ const validateBookUpdate = (jsonObject) => {
 }
 
 module.exports = {
-    isMailValid,
+    isISBNValid,
     isBookCreateValid,
     isBookUpdateValid,
-    isNameValid,
     isParsableToInteger
 }

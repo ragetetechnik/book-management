@@ -4,12 +4,12 @@ const logger = require("../technical services/utils/logger");
 const getAllBooks = function () {
     return new Promise(function (resolve, reject) {
         database('books')
-            .select({
+           .select({
                 id: 'books.id',
-                title: 'books.title'
+                title: 'books.title',
             })
+            .groupBy('books.id')
             .then(function (data) {
-                logger.debug(data)
                 resolve(data)
             }).catch(error => {
                 logger.error(error)
@@ -22,10 +22,21 @@ const getBook = function(id) {
     return new Promise(function(resolve, reject) {
         database('books')
             .where('books.id', id)
-            .select()
+            .join('book_author', 'books.id', 'book_author.book_id')
+            .join('authors', 'book_author.author_id', 'authors.id')
+            .join('publishers', 'books.publisher_id', 'publishers.id')
+            .join('categories', 'books.category_id', 'categories.id')
+            .select({
+                title: 'books.title',
+                isbn: 'books.isbn',
+                condition: 'books.condition',
+                publication_year: 'books.publication_year',
+                publisher: 'publishers.name',
+                category: 'categories.name',
+                authors: database.raw( 'GROUP_CONCAT(CONCAT(authors.first_name, " ", authors.last_name) SEPARATOR ", ")')
+            })
             .first()
             .then(function (data) {
-                logger.debug(data)
                 if(data){
                     resolve(data)
                 } else {
@@ -58,21 +69,41 @@ const deleteBook = function(id) {
 }
 
 const updateBook = function(id, data) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         getBook(id).then(() => {
-        database('books')
-            .where('books.id', id)
-            .first()
-            .update(data)
-            .then(function () {
+            database.transaction(async (trans) => {
+                const { authors, ...bookData } = data;
+                try {
+                    //Update the book record
+                    await trans('books')
+                        .where('books.id', id)
+                        .update(bookData);
+                    //Update book_authors
+                    if (authors) {
+                        await trans('book_author')
+                            .where('book_id', id)
+                            .del();
+                        const newAssociations = authors.map(authorId => ({
+                            book_id: id,
+                            author_id: authorId
+                        }));
+                        await trans('book_author').insert(newAssociations);
+                    }
+                    // Commit the transaction
+                    await trans.commit();
+                    resolve('updated');
+                } catch (error) {
+                    // Rollback transaction
+                    await trans.rollback();
+                    logger.error(error);
+                    reject({ status: 500, message: 'server error' });
+                }
+            }).then(function () {
                 resolve('updated')
             }).catch(error => {
-                logger.error(error)
-                reject({status: 500, message: 'server error'})
+                reject(error)
             })
-        }).catch(error => {
-            reject(error)
-        })
+        });
     });
 }
 
@@ -88,81 +119,40 @@ const createBook = function(bookData) {
                 category_id: bookData.category_id
                 })
             .then(data => {
-                //ToDo book_author table
-                resolve(data[0])
-
+                let authorsToFillInTable = [];
+                bookData.authors.forEach((author) => {
+                    authorsToFillInTable.push(
+                        database('book_author')
+                            .insert({
+                                book_id: data,
+                                author_id: author
+                            })
+                    )
+                })
+                Promise.all(authorsToFillInTable)
+                    .then(() => {
+                        resolve(data[0])
+                    })
+                    .catch(error => {
+                        logger.error('fill book_author table error, attempt to undo book creation ' + error);
+                        deleteBook(data[0]).then(() => {
+                            logger.error('book creation ' + data + ' successfully undone');
+                            reject({status: 500, message: 'server error'})
+                        }).catch(error =>{
+                            logger.error('book creation ' + data + ' cant be undone '+ error);
+                            reject(error)
+                        })
+                    });
          }).catch(error => {
             reject(error)
             })
         })
 }
 
-const getPublisher = function(id) {
-    return new Promise(function(resolve, reject) {
-        database('publishers')
-            .where('publishers.id', id)
-            .select()
-            .first()
-            .then(function (data) {
-                if(data){
-                    resolve(data)
-                } else {
-                    reject('not found')
-                }
-            }).catch(error => {
-                logger.error(error)
-                reject(error)
-        })
-    });
-}
-
-const getCategory = function(id) {
-    return new Promise(function(resolve, reject) {
-        database('categories')
-            .where('categories.id', id)
-            .select()
-            .first()
-            .then(function (data) {
-                if(data){
-                    resolve(data)
-                } else {
-                    reject('not found')
-                }
-            }).catch(error => {
-            logger.error(error)
-            reject(error)
-        })
-    });
-}
-
-const getAuthor = function(id) {
-    return new Promise(function(resolve, reject) {
-        database('authors')
-            .where('authors.id', id)
-            .select()
-            .first()
-            .then(function (data) {
-                if(data){
-                    resolve(data)
-                } else {
-                    reject('not found')
-                }
-            }).catch(error => {
-            logger.error(error)
-            reject(error)
-        })
-    });
-}
-
-
-
 module.exports = {
     getAllBooks,
     getBook,
     deleteBook,
     updateBook,
-    createBook,
-    getPublisher,
-    getAuthor,
-    getCategory
+    createBook
 }

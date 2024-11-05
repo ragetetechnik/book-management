@@ -31,7 +31,7 @@ paths:
                       example: 1
                     title:
                       type: string
-                      example: Book
+                      example: The Book
         '500':
           description: server error
     post:
@@ -45,20 +45,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Book'
+              $ref: '#/components/schemas/BookPost'
       responses:
         '201':
           description: ok (created)
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/Book'
-                  - type: object
-                    properties:
-                      id:
-                        type: integer
-                        example: 1
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
         '500':
           description: server error
         '422':
@@ -84,7 +82,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/Book'
+                  - $ref: '#/components/schemas/BookRec'
                   - type: object
                     properties:
                       id:
@@ -111,7 +109,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Book'
+              $ref: '#/components/schemas/BookPost'
       responses:
         '200':
           description: ok (updated)
@@ -145,6 +143,76 @@ paths:
         '404':
           description: not found
 
+  /authors:
+    get:
+      tags:
+        - Authors
+      summary: Retrieve all authors
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    last_name:
+                      type: string
+                      example: Miller
+        '500':
+          description: server error
+  /categories:
+    get:
+      tags:
+        - Categories
+      summary: Retrieve all categories
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: Miller
+        '500':
+          description: server error
+  /publishers:
+    get:
+      tags:
+        - Publishers
+      summary: Retrieve all publishers
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: Miller
+        '500':
+          description: server error
+
 components:
   securitySchemes:
     bearerAuth:
@@ -169,16 +237,46 @@ components:
         publication_year:
           type: integer
           example: 2021
-        publisher_id:
-          type: integer
-          example: 1
-        category_id:
-          type: integer
-          example: 1
       required:
         - title
         - isbn
         - condition
         - publication_year
-        - publisher_id
-        - category_id
+    BookRec:
+      allOf:
+        - $ref: '#/components/schemas/Book'
+        - type: object
+          properties:
+            publisher:
+              type: string
+              example: "The Publishing Company"
+            category:
+              type: string
+              example: "Mystery"
+            authors:
+              type: string
+              example: "Miller John"
+          required:
+            - publisher
+            - category
+            - authors
+    BookPost:
+      allOf:
+        - $ref: '#/components/schemas/Book'
+        - type: object
+          properties:
+            publisher_id:
+              type: integer
+              example: 1
+            category_id:
+              type: integer
+              example: 1
+            authors:
+              type: array
+              items:
+                type: integer
+                example: 1
+          required:
+            - publisher_id
+            - category_id
+            - authors

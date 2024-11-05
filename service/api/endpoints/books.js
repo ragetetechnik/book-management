@@ -1,11 +1,16 @@
 const express = require('express')
 const router = express.Router()
-const database = require('../../../data access layer/databaseAccessBook')
+const databaseAuthor = require('../../../data access layer/databaseAccessAuthor')
+const databaseBook = require('../../../data access layer/databaseAccessBook')
+const databaseCategory = require('../../../data access layer/databaseAccessCategory')
+const databasePublisher = require('../../../data access layer/databaseAccessPublisher')
+
+
 const logger = require('../../../technical services/utils/logger')
 const validateRest = require('../../../technical services/utils/validateRest')
 
 router.get('/', (req, res) => {
-    database.getAllBooks().then(data => {
+    databaseBook.getAllBooks().then(data => {
         res.status(200)
             .json(data)
     }).catch(error => {
@@ -21,8 +26,9 @@ router.get('/:bookId', (req, res) => {
             .json('Bad request, id has to be a integer')
         return
     }
+
     //ToDo: join for text instead of ids
-    database.getBook(req.params.bookId).then(data => {
+    databaseBook.getBook(req.params.bookId).then(data => {
         res.status(200)
             .json(data)
     }).catch(error => {
@@ -38,7 +44,7 @@ router.delete('/:bookId', (req, res) => {
             .json('Bad request, id has to be a integer')
         return
     }
-    database.deleteBook(req.params.bookId).then(() => {
+    databaseBook.deleteBook(req.params.bookId).then(() => {
         logger.info('book with id ' + req.params.bookId + ' deleted')
         res.status(200)
             .json('deleted')
@@ -56,9 +62,8 @@ router.put('/:bookId', (req, res) => {
             .json('invalid data received: ' + validateRest.isBookCreateValid(bookData))
         return
     }
-    //ToDo validate and add author
     validateRelatives(bookData).then(() => {
-        database.updateBook(req.params.bookId, bookData).then(() => {
+        databaseBook.updateBook(req.params.bookId, bookData).then(() => {
             logger.info('book with id ' + req.params.bookId + ' updated')
             res.status(200)
                 .json('updated')
@@ -83,10 +88,14 @@ router.post('/', (req, res) => {
             .json('invalid data received: ' + validateRest.isBookCreateValid(bookData))
         return
     }
-    //ToDo validate and add author
+    if (!validateRest.isISBNValid(bookData.isbn)){
+        res.status(422)
+            .json('invalid isbn received')
+        return
+    }
 
     validateRelatives(bookData).then(() => {
-        database.createBook(bookData).then(data => {
+        databaseBook.createBook(bookData).then(data => {
             logger.info('book with id ' + data + ' created')
             res.status(201)
                 .json(data);
@@ -107,14 +116,16 @@ const validateRelatives = function(bookData) {
         let relativesToValidate = [];
 
         if(bookData.category_id){
-            relativesToValidate.push(database.getCategory(bookData.category_id))
+            relativesToValidate.push(databaseCategory.getCategory(bookData.category_id))
         }
         if(bookData.publisher_id){
-            relativesToValidate.push(database.getCategory(bookData.publisher_id))
+            relativesToValidate.push(databasePublisher.getPublisher(bookData.publisher_id))
         }
-       /* if(bookData.author_id){
-            relativesToValidate.push(database.getCategory(bookData.author_id))
-        }*/
+        if(bookData.authors){
+            bookData.authors.forEach((author) => {
+                relativesToValidate.push(databaseAuthor.getAuthor(author))
+            })
+        }
         Promise.all(relativesToValidate)
             .then(() => {
                 resolve()
