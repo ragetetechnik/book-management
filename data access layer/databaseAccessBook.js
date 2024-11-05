@@ -18,6 +18,28 @@ const getAllBooks = function () {
     })
 }
 
+const getFilteredBooks = function (category) {
+    return new Promise(function (resolve, reject) {
+        database('books')
+            .join('categories', 'books.category_id', 'categories.id')
+            .where('categories.name', category)
+            .select({
+                id: 'books.id',
+                title: 'books.title',
+            })
+            .then(function (data) {
+                if(data.length > 0){
+                    resolve(data)
+                }else{
+                    reject({ status: 204, message: 'no content' })
+                }
+            }).catch(error => {
+            logger.error(error)
+            reject({ status: 500, message: 'server error' })
+        })
+    })
+}
+
 const getBook = function(id) {
     return new Promise(function(resolve, reject) {
         database('books')
@@ -154,5 +176,6 @@ module.exports = {
     getBook,
     deleteBook,
     updateBook,
-    createBook
+    createBook,
+    getFilteredBooks
 }

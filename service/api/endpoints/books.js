@@ -10,14 +10,29 @@ const logger = require('../../../technical services/utils/logger')
 const validateRest = require('../../../technical services/utils/validateRest')
 
 router.get('/', (req, res) => {
-    databaseBook.getAllBooks().then(data => {
-        res.status(200)
-            .json(data)
-    }).catch(error => {
-        res.status(error.status || 500)
-            .json(error.message)
-        logger.error('error getAllBooks: ' + error)
-    })
+    const categoryFilter = req.query.category;
+    if(!categoryFilter){
+        databaseBook.getAllBooks().then(data => {
+            res.status(200)
+                .json(data)
+        }).catch(error => {
+            res.status(error.status || 500)
+                .json(error.message)
+            logger.error('error getAllBooks: ' + error)
+        })
+    }else{
+        databaseBook.getFilteredBooks(categoryFilter).then(data => {
+            res.status(200)
+                .json(data)
+        }).catch(error => {
+            res.status(error.status || 500)
+                .json(error.message)
+            logger.error('error getFilteredBooks: ' + error)
+        })
+    }
+
+
+
 })
 
 router.get('/:bookId', (req, res) => {
