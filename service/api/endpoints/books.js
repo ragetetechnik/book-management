@@ -5,13 +5,12 @@ const databaseBook = require('../../../data access layer/databaseAccessBook')
 const databaseCategory = require('../../../data access layer/databaseAccessCategory')
 const databasePublisher = require('../../../data access layer/databaseAccessPublisher')
 
-
 const logger = require('../../../technical services/utils/logger')
 const validateRest = require('../../../technical services/utils/validateRest')
 
 router.get('/', (req, res) => {
-    const categoryFilter = req.query.category;
-    if(!categoryFilter){
+    const categoryFilter = req.query.category
+    if (!categoryFilter) {
         databaseBook.getAllBooks().then(data => {
             res.status(200)
                 .json(data)
@@ -20,7 +19,7 @@ router.get('/', (req, res) => {
                 .json(error.message)
             logger.error('error getAllBooks: ' + error)
         })
-    }else{
+    } else {
         databaseBook.getFilteredBooks(categoryFilter).then(data => {
             res.status(200)
                 .json(data)
@@ -30,9 +29,6 @@ router.get('/', (req, res) => {
             logger.error('error getFilteredBooks: ' + error)
         })
     }
-
-
-
 })
 
 router.get('/:bookId', (req, res) => {
@@ -49,12 +45,12 @@ router.get('/:bookId', (req, res) => {
     }).catch(error => {
         res.status(error.status || 500)
             .json(error.message)
-        logger.error('getAllBooks: ' + error.status + ' ' + error.message )
+        logger.error('getAllBooks: ' + error.status + ' ' + error.message)
     })
 })
 
 router.delete('/:bookId', (req, res) => {
-    if(req.accountRole !== 'write'){
+    if (req.accountRole !== 'write') {
         logger.warn('forbidden request')
         res.status(403)
             .json('forbidden')
@@ -73,19 +69,19 @@ router.delete('/:bookId', (req, res) => {
     }).catch(error => {
         res.status(error.status || 500)
             .json(error.message)
-        logger.error('deleteBook: ' + error.status + ' ' + error.message )
+        logger.error('deleteBook: ' + error.status + ' ' + error.message)
     })
 })
 
 router.put('/:bookId', (req, res) => {
-    if(req.accountRole !== 'write'){
+    if (req.accountRole !== 'write') {
         logger.warn('forbidden request')
         res.status(403)
             .json('forbidden')
         return
     }
 
-    let bookData = req.body
+    const bookData = req.body
     if (validateRest.isBookUpdateValid(bookData)) {
         res.status(422)
             .json('invalid data received: ' + validateRest.isBookCreateValid(bookData))
@@ -99,32 +95,30 @@ router.put('/:bookId', (req, res) => {
         }).catch(error => {
             res.status(error.status || 500)
                 .json(error.message)
-            logger.error('updateBook: ' + error.status + ' ' + error.message )
+            logger.error('updateBook: ' + error.status + ' ' + error.message)
         })
     }).catch(error => {
         res.status(error.status || 500)
             .json(error.message)
-        logger.error('validateRelatives: ' + error.status + ' ' + error.message )
+        logger.error('validateRelatives: ' + error.status + ' ' + error.message)
     })
 })
 
-
-
 router.post('/', (req, res) => {
-    if(req.accountRole !== 'write'){
+    if (req.accountRole !== 'write') {
         logger.warn('forbidden request')
         res.status(403)
             .json('forbidden')
         return
     }
 
-    let bookData = req.body
+    const bookData = req.body
     if (validateRest.isBookCreateValid(bookData)) {
         res.status(422)
             .json('invalid data received: ' + validateRest.isBookCreateValid(bookData))
         return
     }
-    if (!validateRest.isISBNValid(bookData.isbn)){
+    if (!validateRest.isISBNValid(bookData.isbn)) {
         res.status(422)
             .json('invalid isbn received')
         return
@@ -134,11 +128,11 @@ router.post('/', (req, res) => {
         databaseBook.createBook(bookData).then(data => {
             logger.info('book with id ' + data + ' created')
             res.status(201)
-                .json(data);
+                .json(data)
         }).catch(error => {
             res.status(error.status || 500)
                 .json(error.message)
-            logger.error('createBook: ' + error.status + ' ' + error.message )
+            logger.error('createBook: ' + error.status + ' ' + error.message)
         })
     }).catch(error => {
         res.status(error.status || 500)
@@ -146,18 +140,17 @@ router.post('/', (req, res) => {
     })
 })
 
-const validateRelatives = function(bookData) {
-    return new Promise(function(resolve, reject) {
+const validateRelatives = function (bookData) {
+    return new Promise(function (resolve, reject) {
+        const relativesToValidate = []
 
-        let relativesToValidate = [];
-
-        if(bookData.category_id){
+        if (bookData.category_id) {
             relativesToValidate.push(databaseCategory.getCategory(bookData.category_id))
         }
-        if(bookData.publisher_id){
+        if (bookData.publisher_id) {
             relativesToValidate.push(databasePublisher.getPublisher(bookData.publisher_id))
         }
-        if(bookData.authors){
+        if (bookData.authors) {
             bookData.authors.forEach((author) => {
                 relativesToValidate.push(databaseAuthor.getAuthor(author))
             })
@@ -167,9 +160,9 @@ const validateRelatives = function(bookData) {
                 resolve()
             })
             .catch(error => {
-                reject({status: 422, message: 'check publisher, author and category id'});
-                logger.error('validating publisher, author and category: ' + error);
-            });
+                reject({ status: 422, message: 'check publisher, author and category id' })
+                logger.error('validating publisher, author and category: ' + error)
+            })
     })
 }
 

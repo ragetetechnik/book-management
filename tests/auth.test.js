@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const { describe, beforeEach, it , expect} = require('@jest/globals')
+const { describe, beforeEach, it, expect } = require('@jest/globals')
 const { verifyToken, generateToken } = require('../technical services/utils/jwtHandler')
 
 // Mock environment variables
@@ -26,7 +26,7 @@ describe('Auth module', () => {
             req = { headers: { authorization: '' } }
             res = {
                 status: jest.fn(() => res),
-                json: jest.fn(),
+                json: jest.fn()
             }
             next = jest.fn()
         })

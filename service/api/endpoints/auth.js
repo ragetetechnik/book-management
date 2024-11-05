@@ -8,7 +8,7 @@ router.post('/', function (req, res) {
     const user = req.body.user
 
     const token = jwtHandler.generateToken(user)
-    if(token){
+    if (token) {
         res.status(200)
             .json(token)
     } else {

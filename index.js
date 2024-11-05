@@ -4,7 +4,7 @@ const http = require('http')
 const express = require('express')
 const app = express()
 const router = require('./service/api/apiRouter')
-const fs = require("fs");
+const fs = require('fs')
 const swaggerUi = require('swagger-ui-express')
 const yaml = require('yaml')
 const logger = require('./technical services/utils/logger')
@@ -32,7 +32,7 @@ app.get('*', function (req, res) {
 })
 
 server.listen(process.env.PORT, () => {
-    logger.log('info',`book management backend started new and is listening to port ${process.env.PORT}`)
+    logger.log('info', `book management backend started new and is listening to port ${process.env.PORT}`)
 })
 
-module.exports = app;
+module.exports = app

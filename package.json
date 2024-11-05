@@ -11,7 +11,8 @@
     "knex:rollback": "knex migrate:rollback",
     "knex:seed": "knex seed:run",
     "test:coverage": "jest --coverage",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint \"**/*.js\""
   },
   "author": "simon dietrich",
   "dependencies": {
@@ -32,6 +33,11 @@
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "jest": "^29.7.0",
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "eslint": "^8.56.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-promise": "^6.1.1"
   }
 }

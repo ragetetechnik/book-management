@@ -1,12 +1,12 @@
 const database = require('./database')
-const logger = require("../technical services/utils/logger");
+const logger = require('../technical services/utils/logger')
 
 const getAllBooks = function () {
     return new Promise(function (resolve, reject) {
         database('books')
-           .select({
+            .select({
                 id: 'books.id',
-                title: 'books.title',
+                title: 'books.title'
             })
             .groupBy('books.id')
             .then(function (data) {
@@ -14,7 +14,7 @@ const getAllBooks = function () {
             }).catch(error => {
                 logger.error(error)
                 reject({ status: 500, message: 'server error' })
-        })
+            })
     })
 }
 
@@ -25,23 +25,23 @@ const getFilteredBooks = function (category) {
             .where('categories.name', category)
             .select({
                 id: 'books.id',
-                title: 'books.title',
+                title: 'books.title'
             })
             .then(function (data) {
-                if(data.length > 0){
+                if (data.length > 0) {
                     resolve(data)
-                }else{
+                } else {
                     reject({ status: 204, message: 'no content' })
                 }
             }).catch(error => {
-            logger.error(error)
-            reject({ status: 500, message: 'server error' })
-        })
+                logger.error(error)
+                reject({ status: 500, message: 'server error' })
+            })
     })
 }
 
-const getBook = function(id) {
-    return new Promise(function(resolve, reject) {
+const getBook = function (id) {
+    return new Promise(function (resolve, reject) {
         database('books')
             .where('books.id', id)
             .join('book_author', 'books.id', 'book_author.book_id')
@@ -55,11 +55,11 @@ const getBook = function(id) {
                 publication_year: 'books.publication_year',
                 publisher: 'publishers.name',
                 category: 'categories.name',
-                authors: database.raw( 'GROUP_CONCAT(CONCAT(authors.first_name, " ", authors.last_name) SEPARATOR ", ")')
+                authors: database.raw('GROUP_CONCAT(CONCAT(authors.first_name, " ", authors.last_name) SEPARATOR ", ")')
             })
             .first()
             .then(function (data) {
-                if(data){
+                if (data) {
                     resolve(data)
                 } else {
                     reject({ status: 404, message: 'not found' })
@@ -68,10 +68,10 @@ const getBook = function(id) {
                 logger.error(error)
                 reject({ status: 500, message: 'server error' })
             })
-    });
+    })
 }
 
-const deleteBook = function(id) {
+const deleteBook = function (id) {
     return new Promise(function (resolve, reject) {
         getBook(id).then(() => {
             database('books')
@@ -80,57 +80,56 @@ const deleteBook = function(id) {
                 .then(function () {
                     resolve('deleted')
                 }).catch(error => {
-                logger.error(error)
-                reject({status: 500, message: 'server error'})
-            })
+                    logger.error(error)
+                    reject({ status: 500, message: 'server error' })
+                })
         }).catch(error => {
             reject(error)
         })
-
-    });
+    })
 }
 
-const updateBook = function(id, data) {
+const updateBook = function (id, data) {
     return new Promise(function (resolve, reject) {
         getBook(id).then(() => {
             database.transaction(async (trans) => {
-                const { authors, ...bookData } = data;
+                const { authors, ...bookData } = data
                 try {
                     //Update the book record
                     await trans('books')
                         .where('books.id', id)
-                        .update(bookData);
+                        .update(bookData)
                     //Update book_authors
                     if (authors) {
                         await trans('book_author')
                             .where('book_id', id)
-                            .del();
+                            .del()
                         const newAssociations = authors.map(authorId => ({
                             book_id: id,
                             author_id: authorId
-                        }));
-                        await trans('book_author').insert(newAssociations);
+                        }))
+                        await trans('book_author').insert(newAssociations)
                     }
                     // Commit the transaction
-                    await trans.commit();
-                    resolve('updated');
+                    await trans.commit()
+                    resolve('updated')
                 } catch (error) {
                     // Rollback transaction
-                    await trans.rollback();
-                    logger.error(error);
-                    reject({ status: 500, message: 'server error' });
+                    await trans.rollback()
+                    logger.error(error)
+                    reject({ status: 500, message: 'server error' })
                 }
             }).then(function () {
                 resolve('updated')
             }).catch(error => {
                 reject(error)
             })
-        });
-    });
+        })
+    })
 }
 
-const createBook = function(bookData) {
-    return new Promise(function(resolve, reject) {
+const createBook = function (bookData) {
+    return new Promise(function (resolve, reject) {
         database('books')
             .insert({
                 title: bookData.title,
@@ -139,9 +138,9 @@ const createBook = function(bookData) {
                 publication_year: bookData.publication_year,
                 publisher_id: bookData.publisher_id,
                 category_id: bookData.category_id
-                })
+            })
             .then(data => {
-                let authorsToFillInTable = [];
+                const authorsToFillInTable = []
                 bookData.authors.forEach((author) => {
                     authorsToFillInTable.push(
                         database('book_author')
@@ -156,19 +155,19 @@ const createBook = function(bookData) {
                         resolve(data[0])
                     })
                     .catch(error => {
-                        logger.error('fill book_author table error, attempt to undo book creation ' + error);
+                        logger.error('fill book_author table error, attempt to undo book creation ' + error)
                         deleteBook(data[0]).then(() => {
-                            logger.error('book creation ' + data + ' successfully undone');
-                            reject({status: 500, message: 'server error'})
-                        }).catch(error =>{
-                            logger.error('book creation ' + data + ' cant be undone '+ error);
+                            logger.error('book creation ' + data + ' successfully undone')
+                            reject({ status: 500, message: 'server error' })
+                        }).catch(error => {
+                            logger.error('book creation ' + data + ' cant be undone ' + error)
                             reject(error)
                         })
-                    });
-         }).catch(error => {
-            reject(error)
+                    })
+            }).catch(error => {
+                reject(error)
             })
-        })
+    })
 }
 
 module.exports = {

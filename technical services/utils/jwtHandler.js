@@ -4,10 +4,10 @@ const logger = require('../../technical services/utils/logger')
 function getValidAccount (user) {
     return new Promise(function (resolve, reject) {
         //normally in a database, would give back user id for determine if operations are allowed for certain users
-        if(user === process.env.USER_WRITE){
+        if (user === process.env.USER_WRITE) {
             resolve('write')
         }
-        if(user === process.env.USER_READ){
+        if (user === process.env.USER_READ) {
             resolve('read')
         }
         reject('no role')
