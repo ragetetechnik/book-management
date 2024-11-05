@@ -6,16 +6,40 @@ info:
 servers:
   - url: http://localhost:3000/api
 tags:
+  - name: Authentication
   - name: Books
   - name: Authors
   - name: Publishers
   - name: Categories
 paths:
+  /auth:
+    post:
+      tags:
+        - Authentication
+      summary: Post request to get a token
+      requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: string
+                    example: admin
+                required:
+                  - user
+      responses:
+        '500':
+          description: server error
+        '200':
+          description: ok
   /books:
     get:
       tags:
         - Books
       summary: Retrieve all books
+      security:
+        - bearerAuth: [ ]
       parameters:
         - in: query
           name: category
@@ -43,6 +67,8 @@ paths:
           description: no content with that category filter
         '500':
           description: server error
+        '401':
+          description: unauthorised
     post:
       tags:
         - Books
@@ -72,12 +98,16 @@ paths:
           description: unprocessable content
         '401':
           description: unauthorised
+        '403':
+          description: forbidden
 
   /books/{id}:
     get:
       tags:
         - Books
       summary: Retrieve a specific book by ID
+      security:
+        - bearerAuth: [ ]
       parameters:
         - in: path
           name: id
@@ -101,6 +131,8 @@ paths:
           description: server error
         '404':
           description: not found
+        '401':
+          description: unauthorised
     put:
       tags:
         - Books
@@ -130,6 +162,8 @@ paths:
           description: unauthorised
         '404':
           description: not found
+        '403':
+          description: forbidden
     delete:
       tags:
         - Books
@@ -151,12 +185,16 @@ paths:
           description: unauthorised
         '404':
           description: not found
+        '403':
+          description: forbidden
 
   /authors:
     get:
       tags:
         - Authors
       summary: Retrieve all authors
+      security:
+        - bearerAuth: [ ]
       responses:
         '200':
           description: ok
@@ -175,11 +213,15 @@ paths:
                       example: Miller
         '500':
           description: server error
+        '401':
+          description: unauthorised
   /categories:
     get:
       tags:
         - Categories
       summary: Retrieve all categories
+      security:
+        - bearerAuth: [ ]
       responses:
         '200':
           description: ok
@@ -198,11 +240,15 @@ paths:
                       example: Miller
         '500':
           description: server error
+        '401':
+          description: unauthorised
   /publishers:
     get:
       tags:
         - Publishers
       summary: Retrieve all publishers
+      security:
+        - bearerAuth: [ ]
       responses:
         '200':
           description: ok
@@ -221,6 +267,8 @@ paths:
                       example: Miller
         '500':
           description: server error
+        '401':
+          description: unauthorised
 
 components:
   securitySchemes:

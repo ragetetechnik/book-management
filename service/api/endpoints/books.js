@@ -54,6 +54,13 @@ router.get('/:bookId', (req, res) => {
 })
 
 router.delete('/:bookId', (req, res) => {
+    if(req.accountRole !== 'write'){
+        logger.warn('forbidden request')
+        res.status(403)
+            .json('forbidden')
+        return
+    }
+
     if (!validateRest.isParsableToInteger(req.params.bookId)) {
         res.status(400)
             .json('Bad request, id has to be a integer')
@@ -71,6 +78,13 @@ router.delete('/:bookId', (req, res) => {
 })
 
 router.put('/:bookId', (req, res) => {
+    if(req.accountRole !== 'write'){
+        logger.warn('forbidden request')
+        res.status(403)
+            .json('forbidden')
+        return
+    }
+
     let bookData = req.body
     if (validateRest.isBookUpdateValid(bookData)) {
         res.status(422)
@@ -97,6 +111,13 @@ router.put('/:bookId', (req, res) => {
 
 
 router.post('/', (req, res) => {
+    if(req.accountRole !== 'write'){
+        logger.warn('forbidden request')
+        res.status(403)
+            .json('forbidden')
+        return
+    }
+
     let bookData = req.body
     if (validateRest.isBookCreateValid(bookData)) {
         res.status(422)
