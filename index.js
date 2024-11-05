@@ -21,7 +21,7 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 app.use('/api', router)
 
 app.use('/api/*', function (req, res) {
-    res.status(404).send('<p>nothing to see here...   check the <a href="./docs">documentation</a> for information about the api</p>')
+    res.status(404).send('<p><a href="./docs">documentation</a> is the path for information about the api</p>')
 })
 
 // possible future frontend
