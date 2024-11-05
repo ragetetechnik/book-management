@@ -34,3 +34,5 @@ app.get('*', function (req, res) {
 server.listen(process.env.PORT, () => {
     logger.log('info',`book management backend started new and is listening to port ${process.env.PORT}`)
 })
+
+module.exports = app;
