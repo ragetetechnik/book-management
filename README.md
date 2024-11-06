@@ -2,6 +2,9 @@
 
 A REST API for managing your books, built with Node.js, Express, and MySQL.
 
+#### API Documentation: http://localhost:3000/api/docs/ 
+Port and host may vary according to those set in environment variables.
+
 ## Table of Contents
 
 - [Requirements](#requirements)
@@ -39,6 +42,11 @@ A REST API for managing your books, built with Node.js, Express, and MySQL.
    cp .env.example .env
    ```
 
+    or windows
+    ```bash
+    copy .env.example .env
+   ```
+   
 ## Configuration
 
 The `.env` file holds all configuration variables necessary to run the application. Below is an explanation of each key variable:
