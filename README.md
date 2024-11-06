@@ -7,14 +7,17 @@ A REST API for managing your books, built with Node.js, Express, and MySQL.
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Configuration](#configuration)
-- [Database Setup](#database-setup)
+- [Database Setup local](#database-setup-local)
 - [Scripts](#scripts)
+- [Docker](#docker)
 - [Author](#author)
+- [Version](#version)
 
 ## Requirements
 
 - [Node.js](https://nodejs.org/)
 - [MySQL Server](https://www.mysql.com/)
+- [Docker & Docker Compose](https://www.docker.com/) (Optional, for containerized deployment)
 
 ## Installation
 
@@ -41,9 +44,9 @@ A REST API for managing your books, built with Node.js, Express, and MySQL.
 The `.env` file holds all configuration variables necessary to run the application. Below is an explanation of each key variable:
 
 - **Server Settings**:
-    - `PORT`: Port on which the server will run (e.g., `3000`).
-    - `HOST`: Server host address (e.g., `http://localhost:3000`).
-    - `NODE_ENV`: Set to `development` for local development;
+    - `APP_PORT`: Port on which the server will run.
+    - `APP_DOCKER_PORT`: Port to expose when running with Docker.
+    - `NODE_ENV`: Set to `development` for local development, Set to `staging` for docker.
   
 - **Logging**:
     - `WINSTON_LOG_LEVEL`: Set log level for Winston (e.g., `debug`, `info`, `warn`, `error`).
@@ -51,28 +54,37 @@ The `.env` file holds all configuration variables necessary to run the applicati
 - **Authentication**:
     - `JWT_SECRET_KEY`: A secret key used to sign JSON Web Tokens (JWT).
 
+- **User Roles**:
+    - `USER_WRITE`: Username with write privileges.
+    - `USER_READ`: Username with read privileges.
+
 - **Database Settings**:
-    - `LOCAL_DB_CLIENT`: Database client for local development (tested with `mysql`).
+    - `LOCAL_DB_CLIENT`: Database client for local development (tested with `mysql2`).
     - `LOCAL_DB_HOST`: Local database host (e.g., `127.0.0.1`).
     - `LOCAL_DB_USER`: Local database user (e.g., `admin_user`).
     - `LOCAL_DB_PASS`: Password for the local database user.
     - `LOCAL_DB_NAME`: Local database name (e.g., `bookmanagement`).
     - `LOCAL_DB_PORT`: Local database port (e.g., `3306`).
 
-    - `DB_CLIENT`: Database client for production (e.g., `mysql`).
-    - `DB_HOST`: Production database host.
-    - `DB_USER`: Production database user.
-    - `DB_PASS`: Password for the production database user.
-    - `DB_NAME`: Production database name (e.g., `bookmanagement`).
-    - `DB_PORT`: Production database port (e.g., `3306`).
+    - `DOCKER_DB_CLIENT`: Database client for docker (e.g., `mysql2`).
+    - `DOCKER_DB_HOST`: docker database host.
+    - `DOCKER_DB_USER`: docker database user.
+    - `DOCKER_DB_PASS`: Password for the docker database user.
+    - `DOCKER_DB_NAME`: docker database name (e.g., `bookmanagement`).
+    - `DOCKER_DB_PORT`: docker database port (e.g., `3306`).
+    - 
+- **Database Settings**:
+    - `DOCKER_DB_DOCKER_PORT`: External port to access Dockerized MySQL.
+    - `DOCKER_DB_ROOT_PASSWORD`: Root password for the Docker MySQL container.
+    - `DOCKER_DB_DATABASE`: Database to create in Docker MySQL container.
 
 Update your `.env` file with the necessary details for your environment.
 
-## Database Setup
+## Database Setup local
 
 1. **Create the MySQL Database and User**:
-   Ensure your MySQL server is running, then create a database matching the `DB_NAME` specified in your `.env` file.
-2. Then create a user matching the `DB_USER`, the development user for needs also CREATE and DROP grants for certain knex operations.
+   Ensure your MySQL server is running, then create a database matching the `LOCAL_DB_NAME` specified in your `.env` file.
+2. Then create a user matching the `LOCAL_DB_USER`, the development user for needs also CREATE and DROP grants for certain knex operations.
 
    ```sql
    CREATE DATABASE bookmanagement;
@@ -132,6 +144,12 @@ The `package.json` file includes various scripts for running, testing, and maint
   ```bash
   npm run test:coverage
   ```
+## Docker
+Start the application with Docker Compose, in the root directory of your project, run:
+
+```bash
+docker-compose up
+```
 
 ## Author
 
@@ -139,4 +157,5 @@ Simon Dietrich
 
 ## Version
 
-0.1.1
+0.1.2
+

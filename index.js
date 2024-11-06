@@ -31,8 +31,14 @@ app.get('*', function (req, res) {
     res.sendFile(process.cwd() + '/assets/index.html')
 })
 
-server.listen(process.env.PORT, () => {
-    logger.log('info', `book management backend started new and is listening to port ${process.env.PORT}`)
-})
+if (process.env.NODE_ENV === 'staging') { // docker
+    server.listen(process.env.APP_DOCKER_PORT, () => {
+        logger.log('info', `book management backend started new and is listening to port ${process.env.APP_DOCKER_PORT}`)
+    })
+} else { // local development
+    server.listen(process.env.APP_PORT, () => {
+        logger.log('info', `book management backend started new and is listening to port ${process.env.APP_PORT}`)
+    })
+}
 
 module.exports = app
